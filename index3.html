@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+ 
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>上传图片和视频文件</title>
+ 
+    <script src="../../js/vue.min.js"></script>
+    <script src="../../js/jweixin-1.3.2.js"></script>
+</head>
+<body>
+    <div id="upload">
+        <!-- 预览图片和视频弹出框 -->
+        <div class="viewCover" v-if="showCover" v-on:click="coverHide()">
+            <img :src="viewImg" v-if="isImg">
+            <video v-if="!isImg" controls>
+                <source :src="viewImg" type="video/mp4">
+                <source :src="viewImg" type="video/mov">
+            </video>
+        </div>
+ 
+        <!-- 图片和视频展示和上传按钮 -->
+        <div style="width: 100vw;height: 7.19rem; overflow-x: auto;">
+            <section class="prob-img-con">
+                <!-- 删除按钮固定在右上角 -->
+                <div class="imgcover" v-for="item in videoList">
+                    <video poster="../../images/icon/video-poster.png" v-on:click="coverShow(item, 0)">
+                        <source :src="item" type="video/mp4">
+                        <source :src="item" type="video/mov">
+                    </video>
+                    <img src="../../images/icon/del.png" class="delicon" v-on:click="delVideo(item)">
+                </div>
+                <div v-for="img in imgList" class="imgcover">
+                    <img :src="img" v-if="img" v-on:click="coverShow(img, 1)" class="showimg">
+                    <img src="../../images/icon/del.png" class="delicon" v-on:click="delImg(img)">
+                </div>
+                
+                <!-- 上传图片按钮 -->
+                <img src="../../images/icon/camera.png" v-on:click="openCamera()" style="width: 4rem;height:4rem;margin:1rem;">
+ 
+                <!-- 上传视频按钮，需要隐藏原本的上传样式 -->
+                <div style="position: relative;overflow:hidden">
+                    <img src="../../images/icon/video.png" style="width: 4rem;height:4rem;margin:1rem;">
+                    <input id="uploaderInput" type="file" accept="video/mp4,video/mov" multiple="" v-on:change="uploadVideo()" style="position: absolute;left: 0px;top: 0px;opacity: 0;height: 4rem">
+                </div>
+            </section>
+        </div>
+    </div>
+ 
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#upload',
+            data: {
+                isImg: true,
+                showCover: false,
+                viewImg: '',
+                videoList: [],
+                imgList: [],
+                baseUrl: localStorage.getItem('baseUrl'),
+                token: localStorage.getItem('token'),
+            },
+            methods: {
+                // 预览图片或视频
+                coverShow(url, item) {
+                    this.viewImg = url;
+                    if (item) {
+                        this.isImg = true
+                    } else {
+                        this.isImg = false;
+                    }
+                    this.showCover = true;
+                },
+                // 点击空白处关闭预览
+                coverHide() {
+                    this.showCover = false;
+                },
+                // 删除图片或视频
+                delImg(item) {
+                    this.imgList.forEach((el, index) => {
+                        if (el == item) {
+                            this.imgList.splice(index, 1)
+                        }
+                    })
+                },
+                delVideo(item) {
+                    this.videoList.forEach((el, index) => {
+                        if (el == item) {
+                            this.videoList.splice(index, 1)
+                        }
+                    })
+                },
+                // 调用摄像头上传图片
+                openCamera() {
+                    let that = this;
+                    this.doconfig();
+                    wx.chooseImage({
+                        count: 1, // 默认9
+                        sizeType: ['original', 'compressed'], // 指定是原图还是压缩图，默认都有
+                        sourceType: ['album', 'camera'], // 指定来源是相册还是相机，默认都有
+                        success: function (res) {
+                            var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                            wx.uploadImage({
+                                localId: localIds.toString(), // 需要上传的图片的ID，由    chooseImage接口获得
+                                isShowProgressTips: 1, // 进度提示
+                                success: function (res) {
+                                    var mediaId = res.serverId; // 返回图片的服务器端ID，即mediaId
+                                    //将获取到的 mediaId 传入后台 方法savePicture
+                                    that.uploadImg(res.serverId)
+                                },
+                                fail: function (res) {
+                                    alertModal('图片上传失败，请重试');
+                                }
+                            });
+                        }
+                    });
+                },
+                // 调用后台上传图片接口
+                uploadImg(mediaId) {
+                    this.$http.post(this.baseUrl + "/api/upload/img", {
+                        "media_id": mediaId,
+                    }).then(function (res) {
+                        this.imgList.push(res.body.message);
+                        $.toast('上传成功');
+                    }, function (error) {
+                        console.log('请求失败处理');
+                        $.toast(error.body.message, 'text');
+                    });
+                },
+                // 上传本地视频
+                upload(data) {
+                    var params = new FormData()
+                    params.append('video', data)
+                    this.$http.post(this.baseUrl + "/api/wechat/upload/video", params, {
+                        headers: {
+                            Authorization: this.token
+                        }
+                    }).then(function (res) {
+                        this.orderData.videos.push(res.body.message);
+                        $.toast('上传成功');
+                    }, function (error) {
+                        console.log('请求失败处理');
+                        $.toast(error.body.message, 'text');
+                    });
+                },
+                uploadVideo() {
+                    var file = $('#uploaderInput')['0'].files[0];
+                    if (file.size >= 20 * 1024 * 1024) {
+                        $.toast('视频不得大于20MB!', 'text');
+                        return false;
+                    } else {
+                        this.upload(file)
+                    }
+				},
+                // 配置JS-SDK的config
+                doconfig() {
+                    let url = location.href.split('#')[0];
+                    let params = {
+                        url: encodeURIComponent(url),
+                        jsApiList: ['chooseImage', 'uploadImage']
+                    }
+                    this.$http.post(this.baseUrl + '/api/wechat/jssdk', params, {
+                        headers: {
+                            Authorization: this.token
+                        }
+                    }).then(function (res) {
+                        let data = JSON.parse(res.body.message);
+                        wx.config({
+                            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来,测试完成后需要关闭。
+                            appId: data.appId, // 必填，公众号的唯一标识
+                            timestamp: data.timestamp, // 必填，生成签名的时间戳
+                            nonceStr: data.nonceStr, // 必填，生成签名的随机串
+                            signature: data.signature, // 必填，签名（加密后，下文有实现）
+                            jsApiList: ['chooseImage', 'uploadImage'] // 必填，需要使用的JS接口列表，开发文档上有所有接口名称，根据需要选用就好。
+                        });
+                    }, function () {
+                        console.log('请求失败处理');
+                    });
+                },
+                
+            }
+        })
+    </script>
+</body>
+</html>
