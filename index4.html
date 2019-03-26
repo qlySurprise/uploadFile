@@ -89,7 +89,7 @@
 
             imgArr = new Array();
 
-            uploadBtn.click(function(){
+            uploadBtn.addEventListener('change',function(){
                 var imgLen = this.files.length;
                 var liLen = previewImgList.getElementsByTagName('li').length;
                 var ImgLen = imgLen + liLen ;
