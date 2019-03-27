@@ -115,8 +115,8 @@
                         var reader = new FileReader();
                         reader.onload = (function(aImg) { return function(e) { aImg.src = e.target.result; initHW(); imgArr.push(e.target.result);}; })(img);
                         reader.readAsDataURL(file);
-                        // var objectUrl = window.URL.createObjectURL(file);
-                        // img.src = objectUrl;
+                        var objectUrl = window.URL.createObjectURL(file);
+                        img.src = objectUrl;
                     }else{
                         var pv =  document.querySelector('.video_preview');
                         var video =  document.createElement('video');
@@ -222,10 +222,10 @@
     <h2 class = "tc">图片上传及预览</h2>
     <form action="" >
         <div class="select tc" >
-            <label for="upload">图片上传及预览4</label>
+            <label for="upload">图片上传及预览</label>
             
             <form action="uploadImage" method="post" enctype="multipart/form-data">
-            <input type="file" id = "upload"  >
+            <input type="file" id = "upload" multiple >
   <!-- <input type="submit"> -->
 </form>
 
