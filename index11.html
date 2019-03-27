@@ -7,154 +7,315 @@
     <title>Document</title>
 </head>
 <body>
-<header class="mui-bar mui-bar-nav">
-			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">拍照 </h1>
-			<a class="mui-icon-right-nav mui-pull-right">
-				<span id="headImage" class="mui-icon mui-icon-camera"></span>
-			</a>
-			<a class="mui-icon-right-nav mui-pull-right">
-				<span id="uploadImage" class="mui-icon mui-icon-upload"></span>
-			</a>
-		</header>
-		<div class="mui-content" style="background-color:#fff">
-			<ul id="imgs" class="mui-table-view mui-grid-view">
-				<!--<li class="mui-table-view-cell mui-media mui-col-xs-6">
-					<a href="#">
-						<img class="mui-media-object" src="images/shuijiao.jpg">
-						<span class="mui-icon mui-icon-trash deleteBtn"></span>
-						<div class="mui-media-body">
-							<input type="text" class="remark" placeholder="备注">
-						</div>
-					</a>
-				</li>-->
-			</ul>
-		</div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mui/3.7.1/css/mui.min.css"></script>
+<div class="mui-content-padded">
+<h4>药店证件</h4>
+<p>请上传以下证件,证件越齐全,越快通过审核</p>
+</div>
+<ul class="mui-table-view mui-grid-view" style="text-align: center;">
+<li class="mui-table-view-cell mui-media mui-col-xs-5">
+<a href="#">
+
+
+<img class="mui-media-object" src="images/iconfont-tianjia.png" id="zj-photo1" style="height: 9rem; width: 9rem;">
+
+
+<div class="mui-media-body" style="font-size: 10px;">营业执照<span style="color: red;">(必填)</span>
+
+</div>
+
+</a>
+</li>
+<li class="mui-table-view-cell mui-media mui-col-xs-5">
+<a href="#">
+<img class="mui-media-object" src="images/iconfont-tianjia.png" id="zj-photo2" style="height: 9rem; width: 9rem;">
+<div class="mui-media-body" style="font-size: 10px;">药品经营许可证
+</div>
+
+</a>
+</li>
+<li class="mui-table-view-cell mui-media mui-col-xs-5">
+<a href="#">
+<img class="mui-media-object" src="images/iconfont-tianjia.png" id="zj-photo3" style="height: 9rem; width: 9rem;">
+<div class="mui-media-body" style="font-size: 10px;">食品经营许可证
+
+</div>
+
+</a>
+</li>
+<li class="mui-table-view-cell mui-media mui-col-xs-5">
+<a href="#">
+<img class="mui-media-object" src="images/iconfont-tianjia.png" id="zj-photo4" style="height: 9rem; width: 9rem;">
+<div class="mui-media-body" style="font-size: 10px;">医疗器械经营许可证
+
+</div>
+
+</a>
+</li>
+
+</ul>
+
+<div class="mui-content-padded">
+
+<p style="font-size: 0.7em;"><span style="color: red;">
+注</span>:&lt;&lt;医疗机构职业许可证&gt;&gt;仅需在[营业执照]处上传</p>
+</div>
+<button class="mui-btn mui-btn-block mui-btn-block bg_color_eb6100 btn-apply" id="apply">提交审核</button>
+
+
+</div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mui/3.7.1/css/mui.css"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mui/3.7.1/js/mui.min.js"></script>
-        <script src=""></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mui/3.7.1/fonts/mui.ttf"></script>
 <script>
- var fileArr = [];
-		mui.init({
-			swipeBack: true //启用右滑关闭功能
-		});
-		document.getElementById('headImage').addEventListener('tap', function() {
-			if(mui.os.plus) {
-				var buttonTit = [{
-					title: "拍照"
-				}, {
-					title: "从手机相册选择"
-				}];
+ mui.init();
+function plusReady() { 
+//Android返回键监听事件 
+plus.key.addEventListener('backbutton',function(){ 
+myclose(); 
+},false); 
+} 
+if (window.plus) { 
+plusReady(); 
+} else { 
+document.addEventListener('plusready', plusReady, false); 
+}
+
+ 
 
 
-				plus.nativeUI.actionSheet({
-					title: "上传图片",
-					cancel: "取消",
-					buttons: buttonTit
-				}, function(b) { /*actionSheet 按钮点击事件*/
-					switch(b.index) {
-						case 0:
-							break;
-						case 1:
-							getImage(); /*拍照*/
-							break;
-						case 2:
-							galleryImg(); /*打开相册*/
-							break;
-						default:
-							break;
-					}
-				})
-			}
-		}, false);
+$id('zj-photo1').addEventListener('tap',function(){
+showActionSheet($id('zj-photo1'));
+
+});
+
+$id('zj-photo2').addEventListener('tap',function(){
+showActionSheet($id('zj-photo2'));
+
+});
+$id('zj-photo3').addEventListener('tap',function(){
+showActionSheet($id('zj-photo3'));
+
+});
+$id('zj-photo4').addEventListener('tap',function(){
+showActionSheet($id('zj-photo4'));
+
+});
+
+//取得旧的图片路径
+
+var oldPhoto=$id('zj-photo1').src;
+var files=[]; 
+$id('apply').addEventListener('tap',function(){
 
 
-		// 拍照获取图片  
-		function getImage() {
-			var c = plus.camera.getCamera();
-			c.captureImage(function(e) {
-				plus.io.resolveLocalFileSystemURL(e, function(entry) {
-					var imgSrc = entry.toLocalURL() + "?version=" + new Date().getTime(); //拿到图片路径  
-					setFile(imgSrc);
-					setHtml(imgSrc);
-				}, function(e) {
-					console.log("读取拍照文件错误：" + e.message);
-				});
-			}, function(s) {
-				console.log("error" + s.message);
-			}, {
-				filename: "_doc/camera/"
-			})
-		}
-		// 从相册中选择图片   
-		function galleryImg() {
-			// 从相册中选择图片  
-			plus.gallery.pick(function(e) {
-				for(var i in e.files) {
-					var fileSrc = e.files[i];
-					setFile(fileSrc);
-					setHtml(fileSrc);
-				}
-			}, function(e) {
-				console.log("取消选择图片");
-			}, {
-				filter: "image",
-				multiple: true,
-				//maximum: 5,
-				system: false,
-				onmaxed: function() {
-					plus.nativeUI.alert('最多只能选择5张图片');
-				}
-			});
-		}
+//初始化文件名数组，点击之后清除之前保存的文件名
+files=[];
 
 
-		function setHtml(path) {
-			var str = '';
-			str = '<li class="mui-table-view-cell mui-media mui-col-xs-6">'+
-					'<img class="mui-media-object" src="'+path+'">'+
-					'<span class="mui-icon mui-icon-trash deleteBtn"></span>'+
-//					'<div class="mui-media-body">'+
-//						'<input type="text" class="remark" placeholder="备注">'+
-//					'</div>'+
-				'</li>';
-			jQuery("#imgs").append(str);
-		}
-		
-		function setFile(fileSrc){
-			var image = new Image();  
-			image.src = fileSrc;
-			fileArr.push(image);
-		}
-		
-		
-		document.getElementById('uploadImage').addEventListener('tap',function(){
-			var files = fileArr;
-		 	var wt=plus.nativeUI.showWaiting();
-            var task=plus.uploader.createUpload('http://192.168.1.111:8181/sys-privilege/Upload',
-                {method:"POST"},
-                function(t,status){ //上传完成
-                    if(status==200){
-                        alert("上传成功："+t.responseText);
-                        wt.close(); //关闭等待提示按钮
-                    }else{
-                        alert("上传失败："+status);
-                        wt.close();//关闭等待提示按钮
-                    }
-                }
-            );  
-             //将文件集合添加到上传队列中
-		    for(var i=0;i<files.length;i++){
-		        var f=files[i];
-		        task.addFile(f.src,{key:i});
-		    }
-		    //传其他的参数 如备注
-		    //添加其他参数
-		    //遍历5个input框
-		    
-            task.addData("comment","test");
-            task.start();
-		});	
+var ph1src=$id('zj-photo1').src;
+var ph2src=$id('zj-photo2').src;
+var ph3src=$id('zj-photo3').src;
+var ph4src=$id('zj-photo4').src;
+//判断下是否有新图片被添加
+if(ph1src!=oldPhoto){
+upload_img(ph1src);
+};
+if(ph2src!=oldPhoto){
+upload_img(ph2src);
+};
+if(ph3src!=oldPhoto){
+upload_img(ph3src);
+};
+if(ph4src!=oldPhoto){
+upload_img(ph4src);
+};
+
+//开始上传
+start_upload();
+
+ 
+
+//获取图片地址进行上传
+//打开页面
+//写入缓存
+
+});
+
+ 
+
+ 
+
+
+//清除照片函数
+$id('eliminate').addEventListener('tap',function(){
+var ph1src=$id('zj-photo1').src=oldPhoto;
+var ph2src=$id('zj-photo2').src=oldPhoto;
+var ph3src=$id('zj-photo3').src=oldPhoto;
+var ph4src=$id('zj-photo4').src=oldPhoto;
+
+})
+
+ 
+
+//弹出系统选择框 选择拍照或者相册
+function showActionSheet(conf){ 
+var divid = conf.id; 
+var actionbuttons=[{title:"拍照"},{title:"相册选取"}]; 
+var actionstyle={title:"选择照片",cancel:"取消",buttons:actionbuttons}; 
+plus.nativeUI.actionSheet(actionstyle, function(e){ 
+if(e.index==1){ 
+getImage(divid); 
+}else if(e.index==2){ 
+galleryImg(divid); 
+} 
+} ); 
+} 
+//相机选取照片 
+function getImage(divid) { 
+var cmr = plus.camera.getCamera(); 
+cmr.captureImage(function(p) { 
+//alert(p);//_doc/camera/1467602809090.jpg 
+plus.io.resolveLocalFileSystemURL(p, function(entry) { 
+//alert(entry.toLocalURL());//file:///storage/emulated/0/Android/data/io.dcloud...../doc/camera/1467602809090.jpg 
+//alert(entry.name);//1467602809090.jpg 
+compressImage(entry.toLocalURL(),entry.name,divid); 
+}, function(e) { 
+plus.nativeUI.toast("读取拍照文件错误：" + e.message); 
+}); 
+}, function(e) { 
+}, { 
+filename: "_doc/camera/", 
+index: 1 
+});
+
+}
+
+
+//相册选取照片
+function galleryImg(divid) { 
+plus.gallery.pick( function(p){ 
+//alert(p);//file:///storage/emulated/0/DCIM/Camera/IMG_20160704_112620.jpg 
+plus.io.resolveLocalFileSystemURL(p, function(entry) { 
+//alert(entry.toLocalURL());//file:///storage/emulated/0/DCIM/Camera/IMG_20160704_112620.jpg 
+//alert(entry.name);//IMG_20160704_112620.jpg 
+//图片压缩函数
+compressImage(entry.toLocalURL(),entry.name,divid); 
+}, function(e) { 
+plus.nativeUI.toast("读取拍照文件错误：" + e.message); 
+}); 
+}, function ( e ) { 
+}, { 
+filename: "_doc/camera/", 
+filter:"image" 
+} ); 
+} 
+
+//图片压缩函数
+function compressImage(url,filename,divid){ 
+var name="_doc/upload/"+divid+"-"+filename;//_doc/upload/F_ZDDZZ-1467602809090.jpg 
+plus.zip.compressImage({ 
+src:url,//src: (String 类型 )压缩转换原始图片的路径 
+dst:name,//压缩转换目标图片的路径 
+quality:20,//quality: (Number 类型 )压缩图片的质量.取值范围为1-100 
+overwrite:true//overwrite: (Boolean 类型 )覆盖生成新文件 
+}, 
+function(event) { 
+//uploadf(event.target,divid); 
+var path = name;//压缩转换目标图片的路径 
+//event.target获取压缩转换后的图片url路 
+//filename图片名称 
+saveimage(event.target,divid,filename,path); 
+},function(error) { 
+plus.nativeUI.toast("压缩图片失败，请稍候再试"); 
+}); 
+} 
+
+//图片保存到本地函数
+function saveimage(url,divid,name,path){ 
+//alert(url);//file:///storage/emulated/0/Android/data/io.dcloud...../doc/upload/F_ZDDZZ-1467602809090.jpg 
+//alert(path);//_doc/upload/F_ZDDZZ-1467602809090.jpg 
+var state=0; 
+var wt = plus.nativeUI.showWaiting(); 
+// plus.storage.clear(); 
+name=name.substring(0,name.indexOf("."));//图片名称：1467602809090 
+var id = document.getElementById("ckjl.id").value; 
+var itemname=id+"img-"+divid;//429img-F_ZDDZ 
+var itemvalue=plus.storage.getItem(itemname); 
+if(itemvalue==null){ 
+itemvalue="{"+name+","+path+","+url+"}";//{IMG_20160704_112614,_doc/upload/F_ZDDZZ-IMG_20160704_112614.jpg,file:///storage/emulated/0/Android/data/io.dcloud...../doc/upload/F_ZDDZZ-1467602809090.jpg} 
+}else{ 
+itemvalue=itemvalue+"{"+name+","+path+","+url+"}"; 
+} 
+plus.storage.setItem(itemname, itemvalue); 
+
+// var src = 'src="'+url+'"'; 
+var src =url; 
+// alert("itemvalue="+itemvalue); 
+showImgDetail(name,divid,id,src); 
+wt.close(); 
+
+} 
+
+//将图片在本地显示出来
+function showImgDetail (imgId,imgkey,id,src) {
+
+
+document.getElementById(imgkey).src=src;
+
+} 
+//初始上传地址 
+var server="http://192.168.2.202:8080/drug_source/uploadImage.action"; 
+
+var index=1;	
+//上传图片文件放入数组
+function upload_img(p){
+//主要是因为MUI 5+ 不支持文件上传的Key是同一个名字
+var n=p.substr(p.lastIndexOf('/')+1);
+files.push({name:"uploadkey_" + index,path:p});
+index++;
+}
+
+//开始上传
+function start_upload(){
+
+//判断下是否有照片在数组中
+if(files.length<=0){
+plus.nativeUI.alert("没有添加上传文件！");
+return;
+}
+//原生的转圈等待框
+var wt=plus.nativeUI.showWaiting();
+
+var task=plus.uploader.createUpload(server,
+{method:"POST"},
+function(t,status){ //上传完成
+alert(status);
+if(status==200){
+
+
+//关闭转圈等待框
+wt.close();	
+
+}else{
+console.log("上传失败："+status);
+//关闭原生的转圈等待框
+wt.close();
+}
+});
+//addData 添加上传数据	
+//	task.addData("client","");
+//	task.addData("uid",getUid());
+for(var i=0;i<files.length;i++){
+var f=files[i];
+//addFile 添加上传文件
+task.addFile(f.path,{key:f.name});
+}
+
+
+//执行上传
+task.start();
+
+}
 </script>
 </body>
 </html>

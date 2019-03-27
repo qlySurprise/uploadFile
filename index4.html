@@ -225,10 +225,7 @@
             <label for="upload">图片上传及预览</label>
             
             <form action="uploadImage" method="post" enctype="multipart/form-data">
-            <!-- <input type="file" id = "upload" multiple > -->
-            <input type="file" id = "upload" multiple="true" dojoType="dojox.form.Uploader"
-label="Select Some Files" url="/tests/UploadFile.php"
-uploadOnSelect="true"/>
+            <input type="file" id = "upload" multiple >
   <!-- <input type="submit"> -->
 </form>
 
@@ -247,11 +244,5 @@ uploadOnSelect="true"/>
 
         <div class="submit btn tc">上传</div>
     </form>
-    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js"></script>
-    <script type="text/javascript">
-        dojo.addOnLoad(function () {
-            dojo.create("div", { innerHTML: "Hello world!" }, dojo.body());
-        });
-    </script>
 </body>
 </html>
