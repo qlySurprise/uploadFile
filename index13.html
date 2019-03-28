@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="css/iconfont.css" />
+        <title>仿淘宝中的评价晒单中选择图片可以预览，添加，删除</title>
+        <script type="text/javascript" src="js/jquery.1.8.2.min.js" ></script>
+        <style type="text/css">
+            *{margin: 0;padding: 0;}
+            .allpic{width: 500px;margin: 0 auto;height: auto;display: none;}
+            .square{width: 66px;margin:0 auto;margin-top:50px;height: 75px;border: 1px solid #eee;text-align: center;}
+            .square img{width: 40px;margin-top: 10px;}
+            input{display: none;}
+        </style>
+    </head>
+    <body>
+        <div class="choose">
+            <div id="allpic" style="width: 400px;height: auto;display: none;"></div>
+            <!--这是想要的样式-->
+            <div class="square" onclick="show()">
+                <img id="photo" src="picture/camera.png"/>
+                <p>传图晒单</p>
+            </div>
+            <!--这是要被隐藏的input-->
+            <input type="file" multiple="multiple" name="file" id="file" accept="images/*" onchange="imgchange(this)"/>
+        </div>
+        <script type="text/javascript">
+            function show(){
+                document.getElementById("file").click();    
+            }
+            function imgchange(obj){
+                var kk=document.getElementById("file").files.length;//获取input中文件的长度
+                $("#allpic").css("display","block");//这是预览的图片放置的位置，在HTML中没有点击时是隐藏的，点击选择文件之后出现
+                var s=$("#allpic").find("img").length;//这是取得allpic中的img的个数
+                if(kk<=8){
+                    for(var i=0;i<kk;i++){
+                        $("#allpic").append("<span style='position: relative;'><img id='"+(s+i)+"' src='' style='width: 80px;height:80px;margin-right: 20px;margin-bottom: 10px'/><a style='position: absolute;right: 13px;top: -35px;width: 15px;height: 15px;line-height:13px;text-align:center;border-radius: 50%;background: #000;color: #fff;cursor: pointer;'>x</a></span>")
+                        //在#allpic中插入span标签来放置img图片，这里图片的id是动态的，因为不确定客户会传多少张图片。所以img的id是从1到8排下来的，后面的a标签是图片上面的叉号按钮，之后会实现点击之后图片消失的效果
+                        var imgurl=window.URL.createObjectURL(file.files[i]);//给img创建一个随机的url地址以便可以添加到需要展示的img的src中
+                        var img=document.getElementById(s+i);//给img创建一个动态的id,刚开始写的时候是用的i当做的img的id,但是有一个bug就是添加了一些图片之后再添加图片的时候会把之前的图片的id顶掉，使之前的图片不出现，所以就让img的Id通过获取到allpic下面的所有img的个数再加上i的方法来使其id不和之前的id有冲突
+                        img.setAttribute("src",imgurl);//这是动态的将img的src换成我们之前定义好的地址
+                    }
+                }else{
+                    alert("只能上传8张图片！")
+                }
+            }
+            $("#allpic").on('click','a',function () {
+                $(this).parent().remove();
+            })
+        </script>
+    </body>
+</html>
